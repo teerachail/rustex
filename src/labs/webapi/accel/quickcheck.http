@@ -1,0 +1,19 @@
+GET http://localhost:3000
+
+###
+
+POST http://localhost:3000/echo
+Content-Type: application/json
+
+{
+  "foo": "bar"
+}
+
+###
+
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+  "username": "Alice"
+}
