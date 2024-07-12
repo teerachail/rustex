@@ -13,7 +13,7 @@ pub fn init_trace() -> Result<Tracer, TraceError> {
         .with_trace_config(
             trace::config()
             .with_resource(Resource::new(vec![
-                KeyValue::new("service.name", "axumtel"),
+                KeyValue::new("service.name", "webapi"),
             ]))
         )
         .install_batch(runtime::Tokio)
