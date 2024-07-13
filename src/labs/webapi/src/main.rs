@@ -1,8 +1,6 @@
 use anyhow::Result;
 use axum::{
-    http::StatusCode,
-    routing::{get, post},
-    Json, Router,
+    extract::State, http::StatusCode, routing::{get, post}, Json, Router
 };
 use opentel::init_trace;
 use opentelemetry::global;
@@ -11,8 +9,11 @@ use serde_json::Value as JsonValue;
 use tokio::signal;
 use tracing::info;
 use tracing_subscriber::layer::SubscriberExt;
+use webapi_app_state::AppState;
+// use webapi_app_state::AppSharedState;
 
 mod opentel;
+mod webapi_app_state;
 
 #[tokio::main]
 #[tracing::instrument]
@@ -23,14 +24,21 @@ async fn main() -> Result<()> {
     let subscriber = tracing_subscriber::Registry::default().with(telemetry);
     tracing::subscriber::set_global_default(subscriber)?;
 
+    // create a new app state
+    let app_state = webapi_app_state::AppState::new().await?;
+    // let app_state: AppSharedState = Arc::new(app_state);
+
     // build our application with a route
     let app = Router::new()
         // `GET /` goes to `root`
         .route("/", get(root))
         // `POST /echo` goes to `echo`
         .route("/echo", post(ehco))
+        // POST /save goes to `save_to_db`
+        .route("/save", post(save_to_db))
         // `POST /users` goes to `create_user`
-        .route("/users", post(create_user));
+        .route("/users", post(create_user))
+        .with_state(app_state);
 
     // run our app with hyper, listening globally on port 3000
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
@@ -77,6 +85,12 @@ async fn root() -> &'static str {
 
 #[tracing::instrument]
 async fn ehco(Json(payload): Json<JsonValue>) -> (StatusCode, Json<JsonValue>) {
+    (StatusCode::OK, Json(payload))
+}
+
+#[tracing::instrument]
+async fn save_to_db(State(app_state): State<AppState>, Json(payload): Json<JsonValue>) -> (StatusCode, Json<JsonValue>) {
+    let _save_result: Vec<JsonValue> = app_state.db.clone().create("records").content(&payload).await.unwrap();
     (StatusCode::OK, Json(payload))
 }
 
