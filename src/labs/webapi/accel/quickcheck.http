@@ -1,8 +1,12 @@
-GET http://localhost:3000
+GET http://localhost:3086
 
 ###
 
-POST http://localhost:3000/echo
+GET http://localhost:3086/api/test
+
+###
+
+POST http://localhost:3086/echo
 Content-Type: application/json
 
 {
@@ -11,7 +15,7 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:3000/save
+POST http://localhost:3086/save
 Content-Type: application/json
 
 {
@@ -20,9 +24,9 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:3000/users
+POST http://localhost:3086/users
 Content-Type: application/json
 
 {
   "username": "Alice"
-}
+} 

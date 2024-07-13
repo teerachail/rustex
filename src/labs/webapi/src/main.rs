@@ -16,6 +16,7 @@ use webapi_app_state::AppState;
 
 mod opentel;
 mod webapi_app_state;
+mod flex_db_api;
 
 #[tokio::main]
 #[tracing::instrument]
@@ -38,9 +39,11 @@ async fn main() -> Result<()> {
         .route("/echo", post(ehco))
         // POST /save goes to `save_to_db`
         .route("/save", post(save_to_db))
+        .with_state(app_state.clone())
+        // API for flex_db
+        .nest("/api", flex_db_api::flex_db_api(app_state))
         // `POST /users` goes to `create_user`
-        .route("/users", post(create_user))
-        .with_state(app_state);
+        .route("/users", post(create_user));
 
     // let the world know that server is up
     println!("Server is up and running on port 3086");
