@@ -1,6 +1,9 @@
 use anyhow::Result;
 use axum::{
-    extract::State, http::StatusCode, routing::{get, post}, Json, Router
+    extract::State,
+    http::StatusCode,
+    routing::{get, post},
+    Json, Router,
 };
 use opentel::init_trace;
 use opentelemetry::global;
@@ -10,7 +13,6 @@ use tokio::signal;
 use tracing::info;
 use tracing_subscriber::layer::SubscriberExt;
 use webapi_app_state::AppState;
-// use webapi_app_state::AppSharedState;
 
 mod opentel;
 mod webapi_app_state;
@@ -40,8 +42,13 @@ async fn main() -> Result<()> {
         .route("/users", post(create_user))
         .with_state(app_state);
 
+    // let the world know that server is up
+    println!("Server is up and running on port 3086");
+    println!("Visit http://localhost:3086");
+    println!("Press Ctrl+C to stop the server");
+
     // run our app with hyper, listening globally on port 3000
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3086").await?;
     axum::serve(listener, app)
         .with_graceful_shutdown(shutdown_signal())
         .await?;
@@ -89,8 +96,17 @@ async fn ehco(Json(payload): Json<JsonValue>) -> (StatusCode, Json<JsonValue>) {
 }
 
 #[tracing::instrument]
-async fn save_to_db(State(app_state): State<AppState>, Json(payload): Json<JsonValue>) -> (StatusCode, Json<JsonValue>) {
-    let _save_result: Vec<JsonValue> = app_state.db.clone().create("records").content(&payload).await.unwrap();
+async fn save_to_db(
+    State(app_state): State<AppState>,
+    Json(payload): Json<JsonValue>,
+) -> (StatusCode, Json<JsonValue>) {
+    let _save_result: Vec<JsonValue> = app_state
+        .db
+        .clone()
+        .create("records")
+        .content(&payload)
+        .await
+        .unwrap();
     (StatusCode::OK, Json(payload))
 }
 
