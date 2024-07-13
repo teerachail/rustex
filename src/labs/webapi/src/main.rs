@@ -18,7 +18,7 @@ mod opentel;
 #[tracing::instrument]
 async fn main() -> Result<()> {
     // initialize tracing
-    let tracer = init_trace()?;
+    let tracer = init_trace("webapi")?;
     let telemetry = tracing_opentelemetry::layer().with_tracer(tracer);
     let subscriber = tracing_subscriber::Registry::default().with(telemetry);
     tracing::subscriber::set_global_default(subscriber)?;
