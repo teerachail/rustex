@@ -2,6 +2,32 @@ GET http://localhost:3086
 
 ###
 
+POST http://localhost:3086/api/categories
+Content-Type: application/json
+
+{
+  "name": "Category 1"
+}
+
+###
+
+GET http://localhost:3086/api/categories
+
+###
+
+GET http://localhost:3086/api/categories/hs9ltbd27v5ukw7iigi2
+
+###
+
+PUT http://localhost:3086/api/categories/hs9ltbd27v5ukw7iigi2
+Content-Type: application/json
+
+{
+  "name": "Category 1 Updated"
+}
+
+###
+
 GET http://localhost:3086/api/test
 
 ###
