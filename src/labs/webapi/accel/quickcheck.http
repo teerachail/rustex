@@ -15,15 +15,24 @@ GET http://localhost:3086/api/categories
 
 ###
 
-GET http://localhost:3086/api/categories/hs9ltbd27v5ukw7iigi2
+GET http://localhost:3086/api/categories/7cw7w5kkguq7oozs7xfr
 
 ###
 
-PUT http://localhost:3086/api/categories/hs9ltbd27v5ukw7iigi2
+PUT http://localhost:3086/api/categories/7cw7w5kkguq7oozs7xfr
 Content-Type: application/json
 
 {
   "name": "Category 1 Updated"
+}
+
+###
+
+PUT http://localhost:3086/api/categories/7cw7w5kkguq7oozs7xfr
+Content-Type: application/json
+
+{
+  "age": 28
 }
 
 ###
