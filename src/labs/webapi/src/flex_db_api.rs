@@ -54,13 +54,9 @@ async fn create_entity(
     Json(payload): Json<JsonValue>,
 ) -> (StatusCode, Json<JsonValue>) {
     let db = _app_state.db.clone();
-    let result: Vec<JsonValue> = db.create(collection).content(payload).await.unwrap();
-    let result: Vec<JsonValue> = result
-        .iter()
-        .map(|x| convert_object_id_to_string(x.clone()).unwrap())
-        .collect();
-    let result = result.first();
-    let id = result.unwrap().get("id").unwrap().as_str().unwrap();
+    let result: Vec<ResultForRecordId> = db.create(collection).content(payload).await.unwrap();
+    let result = result.first().unwrap();
+    let id = result.id.id.to_string();
     (StatusCode::OK, Json(json!({"id": id})))
 }
 
