@@ -1,3 +1,5 @@
+use std::env;
+
 use anyhow::Result;
 use axum::{
     extract::State,
@@ -21,8 +23,12 @@ mod flex_db_api;
 #[tokio::main]
 #[tracing::instrument]
 async fn main() -> Result<()> {
+    // Read environment variable
+    let otel_host = env::var("OTEL_HOST").unwrap_or_else(|_| "localhost".to_string());
+    let otel_uri = format!("http://{}:4317", otel_host);
+
     // initialize tracing
-    let tracer = init_trace("webapi")?;
+    let tracer = init_trace(&otel_uri, "webapi")?;
     let telemetry = tracing_opentelemetry::layer().with_tracer(tracer);
     let subscriber = tracing_subscriber::Registry::default().with(telemetry);
     tracing::subscriber::set_global_default(subscriber)?;
