@@ -6,7 +6,10 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value as JsonValue};
-use surrealdb::opt::{PatchOp, RecordId};
+use surrealdb::{
+    opt::{PatchOp, RecordId},
+    sql::statements::{BeginStatement, CommitStatement},
+};
 
 use crate::webapi_app_state::AppState;
 
@@ -24,6 +27,8 @@ pub fn flex_db_api(app_state: AppState) -> Router {
         .route("/:collection/:id", put(update_entity))
         // POST /api/:collection/:id/:sub_entity goes to `patch_add_sub_entity`
         .route("/:collection/:id/:sub_entity", post(patch_add_sub_entity))
+        // POST /api/txs goes to `execute_txs`
+        .route("/txs", post(execute_txs))
         .with_state(app_state)
 }
 
@@ -135,4 +140,31 @@ async fn patch_add_sub_entity(
     let result = result.unwrap();
     let result = convert_object_id_to_string(result).unwrap();
     (StatusCode::OK, Json(result))
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Tx {
+    id: String,
+    field: String,
+    amount: i64,
+}
+
+async fn execute_txs(
+    State(_app_state): State<AppState>,
+    Json(payload): Json<Vec<Tx>>,
+) -> (StatusCode, Json<JsonValue>) {
+    let db = _app_state.db.clone();
+    let mut query = db.query(BeginStatement::default());
+
+    for rec in payload.iter() {
+        let op = if rec.amount >= 0 { "+=" } else { "-=" };
+        let sql = format!("UPDATE {:} SET {:} {} $amount", rec.id, rec.field, op);
+        println!("SQL: {:}", sql);
+        query = query.query(sql).bind(rec);
+    }
+
+    let result = query.query(CommitStatement::default()).await.unwrap();
+    let n = result.num_statements();
+
+    (StatusCode::OK, Json(json!({"n": n })))
 }
