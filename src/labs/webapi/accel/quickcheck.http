@@ -11,15 +11,24 @@ Content-Type: application/json
 
 ###
 
+POST http://localhost:3086/api/categories/95dykqpb7kvd6ecl5evl/tags
+Content-Type: application/json
+
+{
+  "name": "tag 1"
+}
+
+###
+
 GET http://localhost:3086/api/categories
 
 ###
 
-GET http://localhost:3086/api/categories/7cw7w5kkguq7oozs7xfr
+GET http://localhost:3086/api/categories/95dykqpb7kvd6ecl5evl
 
 ###
 
-PUT http://localhost:3086/api/categories/7cw7w5kkguq7oozs7xfr
+PUT http://localhost:3086/api/categories/95dykqpb7kvd6ecl5evl
 Content-Type: application/json
 
 {

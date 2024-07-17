@@ -6,7 +6,7 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value as JsonValue};
-use surrealdb::opt::RecordId;
+use surrealdb::opt::{PatchOp, RecordId};
 
 use crate::webapi_app_state::AppState;
 
@@ -22,6 +22,8 @@ pub fn flex_db_api(app_state: AppState) -> Router {
         .route("/:collection/:id", get(get_entity))
         // PUT /api/:collection/:id goes to `update_entity`
         .route("/:collection/:id", put(update_entity))
+        // POST /api/:collection/:id/:sub_entity goes to `patch_add_sub_entity`
+        .route("/:collection/:id/:sub_entity", post(patch_add_sub_entity))
         .with_state(app_state)
 }
 
@@ -87,9 +89,12 @@ async fn get_entity(
     let collection = doc_id.collection;
     let id = doc_id.id;
     let result: Option<JsonValue> = db.select((collection, id)).await.unwrap();
-    let entity = result.unwrap();
-    let entity = convert_object_id_to_string(entity).unwrap();
-    (StatusCode::OK, Json(entity))
+    if let Some(entity) = result {
+        let entity = convert_object_id_to_string(entity).unwrap();
+        (StatusCode::OK, Json(entity))
+    } else {
+        (StatusCode::NOT_FOUND, Json(json!({"error": "Not found"})))
+    }
 }
 
 async fn update_entity(
@@ -101,6 +106,32 @@ async fn update_entity(
     let collection = doc_id.collection;
     let id = doc_id.id;
     let result: Option<JsonValue> = db.update((collection, id)).merge(payload).await.unwrap();
+    let result = result.unwrap();
+    let result = convert_object_id_to_string(result).unwrap();
+    (StatusCode::OK, Json(result))
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct EntitySubDocumentId {
+    collection: String,
+    id: String,
+    sub_entity: String,
+}
+
+async fn patch_add_sub_entity(
+    State(_app_state): State<AppState>,
+    Path(doc_id): Path<EntitySubDocumentId>,
+    Json(payload): Json<JsonValue>,
+) -> (StatusCode, Json<JsonValue>) {
+    let db = _app_state.db.clone();
+    let collection = doc_id.collection;
+    let id = doc_id.id;
+    let sub_entity = doc_id.sub_entity;
+    let result: Option<JsonValue> = db
+        .update((collection, id))
+        .patch(PatchOp::add(&sub_entity, &[payload]))
+        .await
+        .unwrap();
     let result = result.unwrap();
     let result = convert_object_id_to_string(result).unwrap();
     (StatusCode::OK, Json(result))
