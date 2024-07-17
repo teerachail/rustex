@@ -6,7 +6,8 @@ POST http://localhost:3086/api/categories
 Content-Type: application/json
 
 {
-  "name": "Category 1"
+  "name": "Category 1",
+  "age": 30
 }
 
 ###
@@ -20,6 +21,24 @@ Content-Type: application/json
 
 ###
 
+POST http://localhost:3086/api/txs
+Content-Type: application/json
+
+[
+  {
+    "id": "categories:ofwbkhvylyq9iic3ppt3",
+    "field": "age",
+    "amount": 8
+  },
+    {
+    "id": "categories:vk4m9au0obxof4y9eezn",
+    "field": "age",
+    "amount": -12
+  }
+]
+
+###
+
 GET http://localhost:3086/api/categories
 
 ###
@@ -28,11 +47,11 @@ GET http://localhost:3086/api/categories/95dykqpb7kvd6ecl5evl
 
 ###
 
-PUT http://localhost:3086/api/categories/95dykqpb7kvd6ecl5evl
+PUT http://localhost:3086/api/categories/mn721hllb5lopx9z8be2
 Content-Type: application/json
 
 {
-  "name": "Category 1 Updated"
+  "age": 40
 }
 
 ###

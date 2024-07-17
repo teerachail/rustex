@@ -158,8 +158,8 @@ async fn execute_txs(
 
     for rec in payload.iter() {
         let op = if rec.amount >= 0 { "+=" } else { "-=" };
-        let sql = format!("UPDATE {:} SET {:} {} $amount", rec.id, rec.field, op);
-        println!("SQL: {:}", sql);
+        let sql = format!("UPDATE {} SET {} += {}", rec.id, rec.field, rec.amount);
+        println!("SQL: {}, {}", sql, rec.amount);
         query = query.query(sql).bind(rec);
     }
 
