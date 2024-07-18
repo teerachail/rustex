@@ -12,7 +12,7 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:3086/api/categories/95dykqpb7kvd6ecl5evl/tags
+POST http://localhost:3086/api/categories/m4ow2pgd0no1mceyvmh4/tags
 Content-Type: application/json
 
 {
@@ -26,12 +26,12 @@ Content-Type: application/json
 
 [
   {
-    "id": "categories:ofwbkhvylyq9iic3ppt3",
+    "id": "categories:m4ow2pgd0no1mceyvmh4",
     "field": "age",
     "amount": 8
   },
     {
-    "id": "categories:vk4m9au0obxof4y9eezn",
+    "id": "categories:irilk5h7tbazy3g20rum",
     "field": "age",
     "amount": -12
   }
@@ -43,11 +43,11 @@ GET http://localhost:3086/api/categories
 
 ###
 
-GET http://localhost:3086/api/categories/95dykqpb7kvd6ecl5evl
+GET http://localhost:3086/api/categories/irilk5h7tbazy3g20rum
 
 ###
 
-PUT http://localhost:3086/api/categories/mn721hllb5lopx9z8be2
+PUT http://localhost:3086/api/categories/irilk5h7tbazy3g20rum
 Content-Type: application/json
 
 {

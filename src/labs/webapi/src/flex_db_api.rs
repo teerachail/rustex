@@ -81,14 +81,15 @@ async fn list_entities(
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct EntityDocumentId {
+struct DataRefId {
     collection: String,
     id: String,
+    sub_entity: Option<String>,
 }
 
 async fn get_entity(
     State(_app_state): State<AppState>,
-    Path(doc_id): Path<EntityDocumentId>,
+    Path(doc_id): Path<DataRefId>,
 ) -> (StatusCode, Json<JsonValue>) {
     let db = _app_state.db.clone();
     let collection = doc_id.collection;
@@ -104,7 +105,7 @@ async fn get_entity(
 
 async fn update_entity(
     State(_app_state): State<AppState>,
-    Path(doc_id): Path<EntityDocumentId>,
+    Path(doc_id): Path<DataRefId>,
     Json(payload): Json<JsonValue>,
 ) -> (StatusCode, Json<JsonValue>) {
     let db = _app_state.db.clone();
@@ -116,22 +117,15 @@ async fn update_entity(
     (StatusCode::OK, Json(result))
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-struct EntitySubDocumentId {
-    collection: String,
-    id: String,
-    sub_entity: String,
-}
-
 async fn patch_add_sub_entity(
     State(_app_state): State<AppState>,
-    Path(doc_id): Path<EntitySubDocumentId>,
+    Path(doc_id): Path<DataRefId>,
     Json(payload): Json<JsonValue>,
 ) -> (StatusCode, Json<JsonValue>) {
     let db = _app_state.db.clone();
     let collection = doc_id.collection;
     let id = doc_id.id;
-    let sub_entity = doc_id.sub_entity;
+    let sub_entity = doc_id.sub_entity.unwrap();
     let result: Option<JsonValue> = db
         .update((collection, id))
         .patch(PatchOp::add(&sub_entity, &[payload]))
@@ -142,13 +136,6 @@ async fn patch_add_sub_entity(
     (StatusCode::OK, Json(result))
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-struct Tx {
-    id: String,
-    field: String,
-    amount: i64,
-}
-
 async fn execute_txs(
     State(_app_state): State<AppState>,
     Json(payload): Json<Vec<Tx>>,
@@ -157,9 +144,7 @@ async fn execute_txs(
     let mut query = db.query(BeginStatement::default());
 
     for rec in payload.iter() {
-        let op = if rec.amount >= 0 { "+=" } else { "-=" };
         let sql = format!("UPDATE {} SET {} += {}", rec.id, rec.field, rec.amount);
-        println!("SQL: {}, {}", sql, rec.amount);
         query = query.query(sql).bind(rec);
     }
 
