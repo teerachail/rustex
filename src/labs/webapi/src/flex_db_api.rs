@@ -136,6 +136,13 @@ async fn patch_add_sub_entity(
     (StatusCode::OK, Json(result))
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+struct Tx {
+    id: String,
+    field: String,
+    amount: i64,
+}
+
 async fn execute_txs(
     State(_app_state): State<AppState>,
     Json(payload): Json<Vec<Tx>>,
